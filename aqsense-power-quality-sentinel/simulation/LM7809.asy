@@ -1,0 +1,14 @@
+Version 4
+SymbolType BLOCK
+RECTANGLE Normal 65 48 -49 -48
+SYMATTR Prefix X
+SYMATTR Value LM7809
+PIN -48 -16 LEFT 8
+PINATTR PinName Input
+PINATTR SpiceOrder 1
+PIN 0 48 BOTTOM 8
+PINATTR PinName Gnd
+PINATTR SpiceOrder 2
+PIN 64 0 RIGHT 8
+PINATTR PinName Output
+PINATTR SpiceOrder 3

@@ -1,0 +1,11 @@
+* Sallen-Key low-pass (Phase 3C filter) frequency response
+V1 IN 0 DC 2.3 AC 1
+R28 IN NODE_A 100k
+R29 NODE_A NODE_B 100k
+C11 NODE_B 0 0.33u
+C12 NODE_A OUT 0.68u
+X1 NODE_B OUT VCC 0 OUT LM324
+VCC VCC 0 9
+.include LM324.lib
+.ac dec 100 0.1 1000
+.end

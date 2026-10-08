@@ -1,0 +1,17 @@
+Version 4
+SymbolType BLOCK
+RECTANGLE Normal 48 48 -48 -48
+SYMATTR Prefix X
+SYMATTR Value AnalogGate
+PIN -48 -16 LEFT 8
+PINATTR PinName +
+PINATTR SpiceOrder 1
+PIN -48 32 LEFT 8
+PINATTR PinName -
+PINATTR SpiceOrder 2
+PIN 48 -16 RIGHT 8
+PINATTR PinName IN
+PINATTR SpiceOrder 3
+PIN 48 32 RIGHT 8
+PINATTR PinName OUT
+PINATTR SpiceOrder 4

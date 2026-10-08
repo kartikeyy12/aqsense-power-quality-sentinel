@@ -1,0 +1,18 @@
+.SUBCKT AnalogGate 2 3 4 5 PARAMS: Rc=24 Vc=5 Th=2.16 Cd=1.28p Rd=1k
+R10 1  0 2u
+R11 2 10 R=vRd
+C11 10 1 {vCd}
+B1 7 1 V=vVc
+B21 21 1 V=uramp(V(7,3))
+R22 21 20 R=vRd
+C22 20 1 {vCd}
+B2 8 1 V=vTh
+R1 4 6 R=vRc/2+.1G*if(u(V(8,10)),1,uramp(.99-uramp(V(10,8))/vTc))
+R2 6 5 R=vRc/2+.1G*if(u(V(8,20)),1,uramp(.99-uramp(V(20,8))/vTc))
+.param vRc = {Rc}
+.param vVc = {Vc}
+.param vTh = {Th}
+.param vTc = {Vc-Th}
+.param vCd = {Cd}
+.param vRd = {Rd}
+.ENDS

@@ -1,0 +1,14 @@
+# LTspice generated files
+*.raw
+*.op.raw
+*.log
+*.fft
+*.bak
+*.net
+# Vendor models: add only if their licence allows redistribution
+simulation/models/*.lib
+simulation/models/*.sub
+# OS / editor
+.DS_Store
+Thumbs.db
+__pycache__/
