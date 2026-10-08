@@ -324,3 +324,4 @@ Problems met while building this, and how they were resolved.
 ## Author
 
 Kartikey - Electronics and Communication Engineering, NIT Goa.
+Kathan - Electronics and Communication Engineering, NIT Goa.
