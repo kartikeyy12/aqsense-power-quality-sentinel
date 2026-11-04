@@ -325,3 +325,8 @@ Problems met while building this, and how they were resolved.
 
 Kartikey - Electronics and Communication Engineering, NIT Goa.
 Kathan - Electronics and Communication Engineering, NIT Goa.
+
+## Software demonstration layer: AQSENSE Facility Twin
+`twin/` connects the LTspice simulation outputs to a virtual-facility application. Python writes the mains stimulus,
+LTspice (unchanged circuit) produces the outputs, and a browser dashboard decodes the recorded node voltages.
+Simulation only. See `twin/TWIN_GUIDE.md`.
