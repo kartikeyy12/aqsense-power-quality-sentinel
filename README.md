@@ -330,3 +330,14 @@ Kathan - Electronics and Communication Engineering, NIT Goa.
 `twin/` connects the LTspice simulation outputs to a virtual-facility application. Python writes the mains stimulus,
 LTspice (unchanged circuit) produces the outputs, and a browser dashboard decodes the recorded node voltages.
 Simulation only. See `twin/TWIN_GUIDE.md`.
+
+### Facility Twin integration findings (LTspice 26.1.1)
+* **Measured trip points** (ramps over 0.5 s, applied mains from the recorded stimulus): LED1 about 182-183 V, LED2 about 202-204 V,
+  LED3 about 243-245 V, LED4 about 267-268 V; frequency flags about 49 and 51 Hz (dynamic values, lag-affected).
+* **Fault memory does not capture in the integrated circuit.** With R15 = 1 kohm, COMP4_INV reaches only 1.77 V during over-voltage, below the
+  sample-and-hold switch threshold (Th = 2.16 V, fully on near 5 V), so SH_OUT stays at about 0.6 V while VSENSE peaks at 5.8 V.
+  The earlier hold test used a forced VSENSE and did not expose this.
+* **What-if (simulation only):** R19 = 680 ohm raises COMP4_INV to 5.79 V and the memory captures 5.45 V (the threshold level, not the peak).
+  Trade-off: about 13 mA through the LM339 output in normal state. A buffered, dedicated control line for U7 would be a cleaner fix.
+  Not verified on hardware.
+* **Start-up:** BUZZER_OUT chirps while the rails settle; the application inhibits the first 0.9 s.

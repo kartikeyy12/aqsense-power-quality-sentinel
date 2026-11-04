@@ -19,7 +19,7 @@ gates the buzzer. It only (1) generates the *input* waveform and (2) turns the *
 |---|---|---|
 | COMP1..4_OUT | + = reference, - = VSENSE; LED sits to the rail, so **LED lit = output LOW** | LED_k lit when node LOW (duty per 20 ms) |
 | COMP1_OUT HIGH | mains below ~184 V (also feeds buzzer OR gate via D6) | UNDER-VOLTAGE |
-| COMP4_INV HIGH | mains above ~267 V (inverted COMP4, feeds OR gate via D5) | OVER-VOLTAGE |
+| COMP4_OUT LOW | mains above ~265 V (LED4 lit; COMP4_INV feeds the OR gate via D5 but is a diode-loaded node, so it is not decoded) | OVER-VOLTAGE |
 | BUZZER_OUT | 555 output ~980 Hz, only while OR_OUT high | buzzer active if swing > mid-rail inside a bin |
 | FREQ_LO / FREQ_HI | **active-LOW**: FREQ_LO low = f < 49 Hz, FREQ_HI low = f > 51 Hz | LOW / HIGH frequency |
 | FREQ_OK_N | active-LOW: low = OK LED lit | FREQ OK |
@@ -65,7 +65,7 @@ python aqsense_twin.py build           # -> out\AQSENSE_Twin.html  (double-click
 | # | File | Story | What to watch |
 |---|---|---|---|
 | 1 | s1_normal | 232-241 V, 49.85-50.15 Hz | no alarms, all assets running |
-| 2 | s2_voltage | 236 -> 195 -> 175 -> 236 -> 255 -> 284 -> 236 V | LED bar steps down/up, UV buzzer, OV buzzer, SH_OUT latch, servers on UPS |
+| 2 | s2_voltage | 236 -> 195 -> 178 -> 236 -> 255 -> 284 -> 236 V | LED bar steps down/up, UV buzzer, OV buzzer, SH_OUT latch, servers on UPS |
 | 3 | s3_frequency | 50 -> 47.5 -> 50 -> 52.5 -> 50.4 Hz | LOW then HIGH LED, conveyor trips, **FREQ_V lag ~0.3-0.5 s**, 50.4 Hz stays OK |
 | 4 | s4_generator | V and f sag together, recover, then V and f surge | compound fault, every asset reacts |
 Edit `SCN` in `aqsense_twin.py` (list of time/volt/Hz points) to add your own, then `make`, `run`, `extract`, `build`.

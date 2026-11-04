@@ -8,7 +8,7 @@ header{display:flex;gap:12px;align-items:center;padding:8px 14px;border-bottom:1
 header h1{font-size:16px;margin:0}header small{color:var(--mu)}
 select,button{background:#21262d;color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:4px 10px;font:inherit}
 button{cursor:pointer}#src{margin-left:auto;padding:2px 10px;border-radius:10px;font-size:11px;border:1px solid var(--ok);color:var(--ok)}
-#src.syn{background:#5c1a1a;color:#ffb4b4;border-color:var(--er);font-weight:700}
+#src.mod{color:var(--wn);border-color:var(--wn);font-weight:700}#src.syn{background:#5c1a1a;color:#ffb4b4;border-color:var(--er);font-weight:700}
 main{display:grid;grid-template-columns:250px minmax(0,1fr) 310px;gap:10px;padding:10px}
 section{background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:10px;min-width:0}
 h2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:0 0 8px}
@@ -59,7 +59,7 @@ const D=/*__DATA__*/null;
 const $=i=>document.getElementById(i),f2=(v,d=2)=>v==null?"-":v.toFixed(d);
 const NM={srv:"Server room",mot:"Conveyor motor",hvac:"HVAC compressor"};
 const ACT={srv:"transferred to UPS",mot:"drive TRIPPED",hvac:"compressor LOCKED OUT"};
-const LAB={uv:"UNDER-VOLTAGE (COMP1_OUT high)",sag:"low-voltage band (only LED1 lit)",hv:"high-voltage band (LED3 lit)",ov:"OVER-VOLTAGE (COMP4_INV high)",
+const LAB={uv:"UNDER-VOLTAGE (COMP1_OUT high)",sag:"low-voltage band (only LED1 lit)",hv:"high-voltage band (LED3 lit)",ov:"OVER-VOLTAGE (COMP4_OUT low = LED4)",
  fl:"LOW FREQUENCY (FREQ_LO low)",fh:"HIGH FREQUENCY (FREQ_HI low)",ls:"frequency channel signal lost (FREQ_V implausible)"};
 const REC=1.0,Q=5,INH=0.9,FLOST=44;   // restore delay s, qualifier bins (5x20ms), start-up inhibit s, plausibility floor Hz
 let S,P,idx=0,playing=false,tCur=0,prev=0,aud=null,rv=0,a1=0,a2=0;
@@ -87,8 +87,10 @@ function analyse(s){
   const stt=s.t[i]<INH?"INITIALISING":(C.uv||C.ov||C.fl||C.fh)?"ALARM":(C.sag||C.hv||C.ls)?"WARNING":"NORMAL";
   st.push({srv:sh.srv,mot:sh.mot,hvac:sh.hvac,bat,lv,der:(!sh.mot&&C.sag)?.7:1,stt,tr:{...tr},ex:{srv:[...ex.srv],mot:[...ex.mot],hvac:[...ex.hvac]},C});
  }
- (s.ovev||[]).forEach(e=>ev.push({i:Math.min(n-1,Math.round(e.t1/dt)),c:"wn",
-  m:`Fault memory SH_OUT = ${f2(e.sh)} V (~${f2(e.shm,0)} V): the circuit kept the threshold. Software-logged peak from VSENSE: ${f2(e.pk)} V (~${f2(e.pkm,0)} V)`}));
+ (s.ovev||[]).forEach(e=>ev.push({i:Math.min(n-1,Math.round(e.t1/dt)),c:e.cap?"wn":"er",
+  m:(e.cap?`Fault memory captured SH_OUT = ${f2(e.sh)} V (~${f2(e.shm,0)} V): the threshold level, not the peak.`
+   :`Fault memory did NOT capture: SH_OUT stayed at ${f2(e.sh)} V. Its switch control (COMP4_INV) only reached ${f2(e.ctl)} V; the analog gate needs about 5 V.`)
+   +` Software-logged peak from VSENSE: ${f2(e.pk)} V (~${f2(e.pkm,0)} V)`}));
  ev.sort((a,b)=>a.i-b.i);return{ev,st};
 }
 
@@ -99,7 +101,7 @@ function initFac(){
  $("fac").innerHTML=`<rect id="feed" x="5" y="4" width="510" height="10" rx="5" fill="#3fb950"/><text id="feedt" x="260" y="28" fill="#8b949e" font-size="10" text-anchor="middle"></text>`+
  tile("srv",5,34,"SERVER ROOM + UPS",[0,1,2].map(j=>`<rect x="20" y="${34+j*28}" width="120" height="22" fill="#21262d"/><circle class="sl" cx="34" cy="${45+j*28}" r="4" fill="#3fb950"/>`).join("")+
   `<rect x="155" y="36" width="80" height="24" fill="none" stroke="#8b949e"/><rect id="bat" x="157" y="38" height="20" width="76" fill="#3fb950"/><text x="160" y="76" fill="#8b949e" font-size="10">UPS battery</text>`)+
- tile("mot",265,34,"CONVEYOR MOTOR (4-pole, 1500 rpm @ 50 Hz)",`<g transform="translate(125,78)"><circle r="36" fill="none" stroke="#30363d" stroke-width="3"/><g id="rot">${blades("#58a6ff")}</g></g><text id="rpm" x="185" y="82" fill="#e6edf3" font-size="16"></text>`)+
+ tile("mot",265,34,"CONVEYOR MOTOR (4-pole, 1500 rpm @ 50 Hz)",`<g transform="translate(125,78)"><circle r="36" fill="none" stroke="#30363d" stroke-width="3"/><g id="rot">${blades("#58a6ff")}</g></g><text id="rpm" x="170" y="82" fill="#e6edf3" font-size="16"></text>`)+
  tile("hvac",5,194,"HVAC COMPRESSOR",`<g transform="translate(125,78)"><rect x="-60" y="-40" width="120" height="80" rx="6" fill="#161b22" stroke="#30363d"/><g id="rot2" transform="scale(.8)">${blades("#3fb950")}</g></g>`)+
  tile("lit",265,194,"LIGHTING",[0,1,2,3,4].map(j=>`<circle class="bu" cx="${35+j*45}" cy="70" r="16" fill="#f2cc60"/>`).join("")+`<text id="lvt" x="10" y="108" fill="#8b949e" font-size="11"></text>`);
 }
@@ -131,7 +133,7 @@ function render(){
   L.innerHTML=w.map(e=>`<div class="${e.c}">[${f2(e.i*S.bin,2)} s] ${e.m}</div>`).join("");L.scrollTop=1e9}
  const m=S.marks.find(m=>tCur>=m[0]&&tCur<m[1]);$("mk").textContent="Applied to LTspice mains source: "+(m?m[2]:"");
  $("tm").textContent=f2(tCur,2)+" / "+f2(S.end,1)+" s";$("sl").value=1000*tCur/S.end;
- if(aud)aud.g.gain.setTargetAtTime(s.bz[i]&&$("snd").checked&&playing?.04:0,aud.c.currentTime,.01);
+ if(aud)aud.g.gain.setTargetAtTime(s.bz[i]&&$("snd").checked&&playing&&s.t[i]>=INH?.04:0,aud.c.currentTime,.01);
  scope();
 }
 
@@ -151,14 +153,14 @@ function scope(){
 }
 
 function load(k){S=D[k];P=analyse(S);idx=0;tCur=0;rv=0;$("log").dataset.n=-1;
- const sy=S.src==="synthetic";$("src").className=sy?"syn":"";
- $("src").textContent=sy?"SYNTHETIC TEST DATA - NOT FROM LTSPICE":`LTspice data: ${S.file} (extracted ${S.created})`;setPlay(false)}
+ const sy=S.src==="synthetic";$("src").className=sy?"syn":S.mod?"mod":"";
+ $("src").textContent=sy?"SYNTHETIC TEST DATA - NOT FROM LTSPICE":`LTspice data: ${S.file} (extracted ${S.created})`+(S.mod?" | CIRCUIT MODIFIED: "+S.mod:"");setPlay(false)}
 function setPlay(v){playing=v;$("pl").innerHTML=v?"&#10074;&#10074; Pause":"&#9654; Play"}
 function audio(){if(aud)return;try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.type="square";o.frequency.value=980;g.gain.value=0;o.connect(g).connect(c.destination);o.start();aud={c,g}}catch(e){}}
 function tick(ts){const d=Math.min(.1,(ts-prev)/1000);prev=ts;
  if(playing){tCur+=d*parseFloat($("sp").value);if(tCur>=S.end){tCur=S.end-.001;setPlay(false)}}
  idx=Math.min(S.t.length-1,Math.max(0,Math.floor(tCur/S.bin)));const a=P.st[idx];
- const tgt=($("act").checked&&a.mot)?0:1500*S.fe[idx]/50*($("act").checked?a.der:1);rv+=(tgt-rv)*Math.min(1,d*3);
+ const fq=S.fa[idx]==null?S.fe[idx]:S.fa[idx];const tgt=($("act").checked&&a.mot)?0:1500*fq/50*($("act").checked?a.der:1);rv+=(tgt-rv)*Math.min(1,d*3);
  const sp=playing?1:0;a1+=rv/1500*d*180*sp;a2+=(($("act").checked&&a.hvac)?0:1)*d*300*sp;
  $("rot").setAttribute("transform","rotate("+a1+")");$("rot2").setAttribute("transform","scale(.8) rotate("+a2+")");
  render();requestAnimationFrame(tick)}

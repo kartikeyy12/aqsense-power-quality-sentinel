@@ -38,10 +38,10 @@ SCN = {
    pts=[(0,236,50),(1.5,236,50),(2.5,241,50.15),(3.3,232,49.85),(4,236,50)],
    marks=[(0,.9,"Power-up: circuit settling, flags inhibited"),(.9,4,"Healthy mains")]),
  "s2_voltage": dict(title="2 - Voltage sag, brown-out and surge", end=10.7,
-   desc="236 V -> 195 V -> 175 V (under-voltage) -> 236 V -> 255 V -> 284 V (over-voltage) -> 236 V.",
-   pts=[(0,236,50),(1.6,236,50),(2.1,195,50),(3,195,50),(3.5,175,50),(4.6,175,50),(5.2,236,50),(6,236,50),
+   desc="236 V -> 195 V -> 178 V (under-voltage) -> 236 V -> 255 V -> 284 V (over-voltage) -> 236 V.",
+   pts=[(0,236,50),(1.6,236,50),(2.1,195,50),(3,195,50),(3.5,178,50),(4.6,178,50),(5.2,236,50),(6,236,50),
         (6.5,255,50),(7.2,255,50),(7.7,284,50),(8.9,284,50),(9.5,236,50),(10.7,236,50)],
-   marks=[(0,.9,"Power-up"),(.9,1.6,"Healthy"),(1.6,3,"Sag to 195 V"),(3,4.6,"Deep sag to 175 V"),(4.6,6,"Recovery"),
+   marks=[(0,.9,"Power-up"),(.9,1.6,"Healthy"),(1.6,3,"Sag to 195 V"),(3,4.6,"Deep sag to 178 V"),(4.6,6,"Recovery"),
           (6,7.2,"High: 255 V"),(7.2,8.9,"Surge: 284 V"),(8.9,10.7,"Recovery - fault memory holds")]),
  "s3_frequency": dict(title="3 - Frequency drift", end=8.2,
    desc="50 Hz -> 47.5 Hz (LOW) -> 50 Hz -> 52.5 Hz (HIGH) -> 50.4 Hz at constant 236 V.",
@@ -49,6 +49,11 @@ SCN = {
         (7,236,50.4),(8.2,236,50.4)],
    marks=[(0,.9,"Power-up"),(.9,1.6,"Healthy"),(1.6,3.4,"Under-frequency 47.5 Hz"),(3.4,4.8,"Recovery"),
           (4.8,6.6,"Over-frequency 52.5 Hz"),(6.6,8.2,"Recovery (50.4 Hz, inside window)")]),
+ "s5_memfix": dict(title="5 - WHAT-IF: fault memory with R19 = 680 ohm", end=5.5, rep={"R19": "680"},
+   mod="R19 10k -> 680 ohm (design what-if, NOT the original circuit)",
+   desc="Same circuit except R19: tests whether a stronger COMP4_INV level lets the sample-and-hold switch close.",
+   pts=[(0,236,50),(1.6,236,50),(2.1,284,50),(3.5,284,50),(4.1,236,50),(5.5,236,50)],
+   marks=[(0,.9,"Power-up"),(.9,1.6,"Healthy"),(1.6,3.5,"Surge to 284 V"),(3.5,5.5,"Recovery - does the memory hold?")]),
  "s4_generator": dict(title="4 - Generator overload then load rejection", end=10.0,
    desc="Islanded generator: sag AND slow-down together, recovery, then load rejection: surge AND over-speed.",
    pts=[(0,236,50),(1.6,236,50),(3,178,47.8),(4.4,178,47.8),(5.4,236,50),(6.4,236,50),(6.9,282,52.4),(8.2,282,52.4),
@@ -77,7 +82,10 @@ def make():
         out = [f"* Scenario '{name}' generated from aqsense_full.cir. ONLY V1 (stimulus), .tran, .meas and .save were changed."]
         for line in src.splitlines():
             u = line.strip().lower()
-            if u.startswith("v1 "):
+            p = line.split()
+            if p and p[0].upper() in sc.get("rep", {}):                       # what-if component change (labelled in the netlist)
+                p[-1] = sc["rep"][p[0].upper()]; line = " ".join(p) + "  ; WHAT-IF change, not the original value"
+            elif u.startswith("v1 "):
                 line = f"V1 MAINS_A MAINS_B PWL file={name}.pwl"
             elif u.startswith(".tran"):
                 line = f".tran 0 {sc['end']} 0 50u"
@@ -188,7 +196,7 @@ def extract(name, path=None):
     rail = G("vreg_out"); thr = rail / 2                                   # logic threshold = mid-rail (from LTspice itself)
     low = lambda k: B(G(k) < thr).mean(1)                                 # fraction of the bin the node is LOW
     bz = G("buzzer_out"); bzb = B(bz); buz = ((bzb.max(1) - bzb.min(1)) > thr.reshape(n, per).mean(1)).astype(int)
-    vs, sh, fv, orv = (B(G(k)).mean(1) for k in ("vsense", "sh_out", "freq_v", "or_out"))
+    vs, sh, fv, orv, ci = (B(G(k)).mean(1) for k in ("vsense", "sh_out", "freq_v", "or_out", "comp4_inv"))
     vm = G("mains_a") - G("mains_b"); vr = np.sqrt(B(vm ** 2).mean(1)) * np.sqrt(2) / VPK_PER_VRMS   # applied mains (ground truth)
     zc = np.where(np.signbit(vm[:-1]) & ~np.signbit(vm[1:]))[0]
     tz = grid[zc] - vm[zc] * DT / (vm[zc + 1] - vm[zc]); cen = (np.arange(n) + .5) * BIN
@@ -197,7 +205,7 @@ def extract(name, path=None):
     me, fe = (vs - bV) / mV, mF * fv + bF
     d = dict(t=cen, vs=vs, sh=sh, fv=fv, vr=vr, fa=fa, me=me, fe=fe, orv=orv,
              l1=low("comp1_out"), l2=low("comp2_out"), l3=low("comp3_out"), l4=low("comp4_out"),   # LED lit = output LOW
-             ov=1 - low("comp4_inv"),                                                                # over-voltage flag = HIGH
+             ov=low("comp4_out"),                                                                # over-voltage flag = HIGH
              bz=buz, fh=low("freq_hi"), fl=low("freq_lo"), fk=low("freq_ok_n"))                      # active-low flags
     lo = int(T_INHIBIT / BIN); trips = []
     for k, dv in DESIGN.items():
@@ -210,15 +218,15 @@ def extract(name, path=None):
         if on and run0 is None: run0 = i
         if not on and run0 is not None:
             j = min(i + 3, n - 1); pk = float(vs[run0:i].max())
-            ovev.append(dict(t0=run0 * BIN, t1=i * BIN, pk=pk, pkm=float((pk - bV) / mV), sh=float(sh[j]), shm=float((sh[j] - bV) / mV))); run0 = None
+            ovev.append(dict(t0=run0 * BIN, t1=i * BIN, cap=bool(sh[j] >= 4.3), ctl=float(ci[run0:i].max()), pk=pk, pkm=float((pk - bV) / mV), sh=float(sh[j]), shm=float((sh[j] - bV) / mV))); run0 = None
     meta = dict(id=name, title=sc["title"], desc=sc["desc"], marks=sc["marks"], bin=BIN, end=n * BIN, file=Path(path).name,
                 src=("synthetic" if "SYNTHETIC" in tr["_title"].upper() else "ltspice"), hdr=tr["_title"],
-                created=datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), trips=trips, ovev=ovev)
+                mod=sc.get("mod", ""), created=datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), trips=trips, ovev=ovev)
     DATA.mkdir(exist_ok=True)
     out = dict(meta, **{k: [None if not np.isfinite(x) else round(float(x), 4) for x in v] for k, v in d.items()})
     (DATA / f"{name}.json").write_text(json.dumps(out)); print(f"  {name}: {n} bins from {Path(path).name} [{meta['src']}]")
     for tp in trips: print(f"     {tp['sig']:30s} {tp['dir']:4s} at applied {tp['applied']:.1f}")
-    for e in ovev: print(f"     OV event {e['t0']:.2f}-{e['t1']:.2f}s: software-logged peak VSENSE {e['pk']:.2f} V (~{e['pkm']:.0f} V) | SH_OUT latched {e['sh']:.2f} V (~{e['shm']:.0f} V)")
+    for e in ovev: print(f"     OV event {e['t0']:.2f}-{e['t1']:.2f}s: peak VSENSE {e['pk']:.2f} V (~{e['pkm']:.0f} V) | SH_OUT held {e['sh']:.2f} V | memory {'CAPTURED' if e['cap'] else 'NOT captured'} | COMP4_INV reached {e['ctl']:.2f} V")
 
 def build():
     files = [DATA / f"{n}.json" for n in SCN if (DATA / f"{n}.json").exists()]
