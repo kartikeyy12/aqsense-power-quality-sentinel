@@ -197,7 +197,7 @@ def extract(name, path=None):
     low = lambda k: B(G(k) < thr).mean(1)                                 # fraction of the bin the node is LOW
     bz = G("buzzer_out"); bzb = B(bz); buz = ((bzb.max(1) - bzb.min(1)) > thr.reshape(n, per).mean(1)).astype(int)
     vs, sh, fv, orv, ci = (B(G(k)).mean(1) for k in ("vsense", "sh_out", "freq_v", "or_out", "comp4_inv"))
-    vm = G("mains_a") - G("mains_b"); vr = np.sqrt(B(vm ** 2).mean(1)) * np.sqrt(2) / VPK_PER_VRMS   # applied mains (ground truth)
+    vm = G("mains_a") - G("mains_b"); vr = (B(vm).max(1) - B(vm).min(1)) / 2 / VPK_PER_VRMS   # applied mains (ground truth)
     zc = np.where(np.signbit(vm[:-1]) & ~np.signbit(vm[1:]))[0]
     tz = grid[zc] - vm[zc] * DT / (vm[zc + 1] - vm[zc]); cen = (np.arange(n) + .5) * BIN
     fa = np.interp(cen, (tz[1:] + tz[:-1]) / 2, 1 / np.diff(tz)) if len(tz) > 2 else np.full(n, np.nan)

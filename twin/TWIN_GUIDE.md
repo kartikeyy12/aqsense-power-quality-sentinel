@@ -76,9 +76,8 @@ Edit `SCN` in `aqsense_twin.py` (list of time/volt/Hz points) to add your own, t
 2. **Start-up** - flags flicker ~0.2-0.45 s; the app inhibits the first 0.9 s (README's suggested power-up inhibit).
 3. **Ripple near 49/51 Hz** - +/-0.4 Hz of chatter is possible; shown through LED duty, tamed by the 100 ms qualifier.
 4. **Fault memory** stores the threshold level, not the peak.
-5. **Deep sag may blind the frequency channel.** From the netlist, the Schmitt trigger (about +/-0.3 V hysteresis) sees about 0.31 V peak at
-   175-178 V mains (0.0286 x Vpk x 0.83 AC-coupling attenuation). If FREQ_V collapses during the sag, the app reports
-   "SIGNAL LOST?" rather than a false LOW alarm. If it happens it is a real result of your circuit: report it.
+5. **Frequency channel during sag:** checked at 178 V (scenarios 2 and 4): FREQ_V stayed valid (about 50.0 Hz). Not tested below 178 V; at roughly 175 V and below the Schmitt input amplitude gets marginal, so the app flags FREQ_V < 44 Hz-equivalent as 'signal lost'.
+5b. **SH_OUT drifts up about 0.07 V/s** with no fault (likely leakage through the switch model's OFF resistance into the hold capacitor), so SH_OUT = 0 does not mean 'memory empty' on long runs. **Fault memory did not capture** in the original circuit (COMP4_INV only 1.77 V); see scenario 5.
 6. Mains in LTspice is scaled (Vpk = 0.074 x V_rms). Scenario durations are compressed (seconds, not minutes) - 1x playback = simulated time.
 7. LTspice runs are slow, so playback is pre-computed replay, not live co-simulation.
 
