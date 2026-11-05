@@ -2,66 +2,82 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AQSENSE Facility Twin</title>
 <style>
-:root{color-scheme:dark;--bg:#0d1117;--pn:#161b22;--ln:#30363d;--tx:#e6edf3;--mu:#8b949e;--ok:#3fb950;--wn:#d29922;--er:#f85149;--bl:#58a6ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:13px/1.4 system-ui,"Segoe UI",sans-serif}
-header{display:flex;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--ln);flex-wrap:wrap}
-header h1{font-size:16px;margin:0}header small{color:var(--mu)}
-select,button{background:#21262d;color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:4px 10px;font:inherit}
-button{cursor:pointer}#src{margin-left:auto;padding:2px 10px;border-radius:10px;font-size:11px;border:1px solid var(--ok);color:var(--ok)}
-#src.mod{color:var(--wn);border-color:var(--wn);font-weight:700}#src.syn{background:#5c1a1a;color:#ffb4b4;border-color:var(--er);font-weight:700}
-main{display:grid;grid-template-columns:250px minmax(0,1fr) 310px;gap:10px;padding:10px}
-section{background:var(--pn);border:1px solid var(--ln);border-radius:8px;padding:10px;min-width:0}
-h2{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:0 0 8px}
-.row{display:flex;align-items:center;gap:8px;margin:4px 0}.dot{width:14px;height:14px;border-radius:50%;opacity:.12;flex:none}
-.g{background:var(--ok);box-shadow:0 0 8px var(--ok)}.y{background:var(--wn);box-shadow:0 0 8px var(--wn)}.r{background:var(--er);box-shadow:0 0 8px var(--er)}
-.kv{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-variant-numeric:tabular-nums}.kv span:nth-child(odd){color:var(--mu)}
-.big{font-size:18px;font-weight:700;margin:6px 0}.mu{color:var(--mu)}.note{font-size:11px;color:var(--mu);margin-top:8px}
-#log{height:250px;overflow:auto;font-size:12px;border-top:1px solid var(--ln);margin-top:6px}
-#log div{padding:2px 0;border-bottom:1px solid #21262d}.er{color:var(--er)}.wn{color:var(--wn)}.ok{color:var(--ok)}
-table{width:100%;border-collapse:collapse;font-size:12px}td,th{padding:2px 4px;text-align:right}td:first-child,th:first-child{text-align:left}th{color:var(--mu);font-weight:400}
-#sc{width:100%;height:250px;display:block;cursor:pointer}
-footer{display:flex;gap:12px;align-items:center;padding:0 10px 12px;flex-wrap:wrap}#sl{flex:1;min-width:200px}
-#mk{padding:0 10px 6px;color:var(--bl);font-weight:600;min-height:20px}
+:root{--bg:#f5f4f0;--pn:#fbfaf7;--ln:#d6d2c8;--hl:#e4e0d6;--tx:#1c232b;--mu:#6a7077;--ok:#2f7d4f;--wn:#b7791f;--er:#b3261e;--ac:#1f3a5f;
+--sans:"Segoe UI","Helvetica Neue",Arial,sans-serif;--disp:"Bahnschrift","Segoe UI Semibold","Helvetica Neue",Arial,sans-serif;
+--mono:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:13px/1.45 var(--sans)}
+header{display:flex;align-items:baseline;gap:18px;padding:16px 20px 12px;border-bottom:1px solid var(--ln);flex-wrap:wrap}
+h1{font:600 19px var(--disp);letter-spacing:.05em;margin:0}h1 span{font-weight:400;color:var(--mu)}
+.cap{color:var(--mu);font-size:12px}.hr{margin-left:auto;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+select,button{font:inherit;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:2px;padding:4px 10px}
+button{cursor:pointer;min-width:64px}button:hover,select:hover{border-color:var(--tx)}
+#src{font:11px var(--mono);color:var(--mu);border-left:3px solid var(--ok);padding-left:8px}
+#src.syn{color:var(--er);border-color:var(--er);font-weight:700}#src.mod{border-color:var(--wn)}
+main{display:grid;grid-template-columns:262px minmax(0,1fr) 330px;border-bottom:1px solid var(--ln)}
+section{padding:16px 20px;border-right:1px solid var(--ln);min-width:0}section:last-child{border-right:0}
+h2{font:600 11px var(--disp);letter-spacing:.14em;text-transform:uppercase;color:var(--mu);margin:0 0 10px}
+.big{font:600 21px var(--disp);letter-spacing:.02em;margin:2px 0 4px}
+.bar{display:flex;gap:3px;margin:6px 0 3px}.bar i{flex:1;height:12px;opacity:.12}
+.g{background:var(--ok)}.w{background:var(--wn)}.r{background:var(--er)}
+.bl{display:flex;gap:3px;font:10.5px var(--mono);color:var(--mu);margin-bottom:16px}.bl span{flex:1}
+.row{display:flex;align-items:center;gap:8px;margin:6px 0 18px}.sq{display:inline-block;width:12px;height:12px;opacity:.12}
+small{color:var(--mu);font:11px var(--mono)}
+.kv{display:grid;grid-template-columns:1fr auto;font-size:12px}.kv>*{padding:3px 0;border-bottom:1px solid var(--hl)}
+.kv>span:nth-child(odd){color:var(--mu)}.kv>span:nth-child(even){font-family:var(--mono);text-align:right}
+.note{font-size:11.5px;color:var(--mu);margin:10px 0 0}
+.ctl{display:flex;gap:22px;margin-top:12px}.ctl label{cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px}
+th,td{padding:4px 0;text-align:right;border-bottom:1px solid var(--hl);font-family:var(--mono)}
+th{font:11px var(--sans);color:var(--mu)}td:first-child,th:first-child{text-align:left;font-family:var(--sans)}
+#log{height:290px;overflow:auto;margin-top:2px}
+.e{display:grid;grid-template-columns:48px 1fr;gap:8px;padding:3px 0 3px 8px;border-left:3px solid var(--ln);margin-bottom:3px;font-size:12px}
+.e b{font:11px var(--mono);color:var(--mu);font-weight:400;padding-top:1px}.e.er{border-color:var(--er)}.e.wn{border-color:var(--wn)}.e.ok{border-color:var(--ok)}
+#mk{padding:12px 20px 0;font:12px var(--mono);color:var(--ac);min-height:30px}
+.scw{padding:4px 20px}#sc{width:100%;height:250px;display:block;cursor:crosshair}
+footer{display:flex;gap:16px;align-items:center;padding:10px 20px 22px;flex-wrap:wrap}
+#sl{flex:1;min-width:200px;accent-color:var(--ac)}#tm{font:12px var(--mono);color:var(--mu);min-width:100px}
+.m{font-family:var(--mono)}
+@media(max-width:1100px){main{grid-template-columns:1fr}section{border-right:0;border-bottom:1px solid var(--ln)}}
 </style></head><body>
-<header><h1>AQSENSE &middot; Facility Twin</h1><small>software application driven by LTspice outputs of the analog sentinel &mdash; <b>simulation only</b></small>
-<select id="sel"></select><span id="src"></span></header>
+<header><h1>AQSENSE <span>Facility Twin</span></h1>
+<div class="cap">Software layer on the LTspice simulation of the AQSENSE analog sentinel. Simulation only.</div>
+<div class="hr"><select id="sel"></select><div id="src"></div></div></header>
 <main>
-<section><h2>AQSENSE circuit says (LTspice nodes)</h2>
- <div class="big" id="vb">&ndash;</div>
- <div class="row"><i class="dot g" id="dl1"></i>LED1 &gt;180 V <span class="mu">COMP1_OUT low</span></div>
- <div class="row"><i class="dot g" id="dl2"></i>LED2 &gt;200 V <span class="mu">COMP2_OUT low</span></div>
- <div class="row"><i class="dot g" id="dl3"></i>LED3 &gt;240 V <span class="mu">COMP3_OUT low</span></div>
- <div class="row"><i class="dot r" id="dl4"></i>LED4 &gt;260 V <span class="mu">COMP4_OUT low</span></div>
- <div class="row"><i class="dot r" id="dbz"></i>Buzzer <span class="mu">BUZZER_OUT (555)</span></div>
- <div class="big" id="fb">&ndash;</div>
- <div class="row"><i class="dot y" id="dfl"></i>LOW <span class="mu">FREQ_LO low</span></div>
- <div class="row"><i class="dot g" id="dfk"></i>OK <span class="mu">FREQ_OK_N low</span></div>
- <div class="row"><i class="dot y" id="dfh"></i>HIGH <span class="mu">FREQ_HI low</span></div>
- <div class="kv" style="margin-top:8px" id="kv"></div>
- <div class="note">LED brightness = fraction of each 20 ms the LTspice node was low, so comparator chatter near a threshold is visible, not hidden. Mains/frequency estimates are calibrated read-outs of VSENSE and FREQ_V; the alarm decisions are the circuit's.</div>
+<section><h2>Circuit outputs</h2>
+ <div class="big" id="vb"></div>
+ <div class="bar"><i class="g" id="dl1"></i><i class="g" id="dl2"></i><i class="w" id="dl3"></i><i class="r" id="dl4"></i></div>
+ <div class="bl"><span>&gt;180 V</span><span>&gt;200 V</span><span>&gt;240 V</span><span>&gt;260 V</span></div>
+ <div class="big" id="fb"></div>
+ <div class="bar"><i class="w" id="dfl"></i><i class="g" id="dfk"></i><i class="w" id="dfh"></i></div>
+ <div class="bl"><span>Low</span><span>In window</span><span>High</span></div>
+ <div class="row"><i class="sq r" id="dbz"></i>Buzzer <small>BUZZER_OUT</small></div>
+ <h2>Readouts</h2><div class="kv" id="kv"></div>
+ <p class="note">Est. values are calibrated from VSENSE and FREQ_V. Applied values are recorded in LTspice. Shading shows the fraction of each 20 ms the node was low. All alarm decisions come from the circuit.</p>
 </section>
-<section><h2>Virtual facility (software supervisor reacting to AQSENSE flags)</h2>
- <svg id="fac" viewBox="0 0 520 345" style="width:100%"></svg>
- <label><input type="checkbox" id="act" checked> Supervisor actions enabled (untick = facility ignores AQSENSE)</label>
- &nbsp; <label><input type="checkbox" id="snd" checked> Buzzer sound</label>
+<section><h2>Facility</h2>
+ <svg id="fac" viewBox="0 0 520 356" style="width:100%;display:block"></svg>
+ <div class="ctl"><label><input type="checkbox" id="act" checked> Supervisor actions</label><label><input type="checkbox" id="snd" checked> Buzzer sound</label></div>
+ <p class="note">Untick Supervisor actions to show the facility ignoring the AQSENSE flags.</p>
 </section>
-<section><h2>Out-of-spec exposure (s)</h2><div id="ex"></div>
- <div class="note">Exposure = time the <i>applied</i> mains (recorded in LTspice) was outside 180-260 V / 49-51 Hz while the asset was still connected. Includes the circuit's own detection latency and threshold offsets.</div>
- <h2 style="margin-top:10px">Event log</h2><div id="log"></div></section>
+<section><h2>Exposure, seconds</h2><div id="ex"></div>
+ <p class="note">Time the applied mains was outside 180 to 260 V or 49 to 51 Hz while the asset was still connected. Includes the circuit's detection latency and threshold offsets.</p>
+ <h2 style="margin-top:18px">Event log</h2><div id="log"></div>
+</section>
 </main>
 <div id="mk"></div>
-<section style="margin:0 10px 8px"><canvas id="sc"></canvas></section>
-<footer><button id="pl">&#9654; Play</button><input type="range" id="sl" min="0" max="1000" value="0">
-<span id="tm" class="mu"></span> speed <select id="sp"><option>0.5</option><option selected>1</option><option>2</option><option>4</option></select>
-<span class="mu">1x = 1 s of simulated time per second. Not real-time monitoring.</span></footer>
+<div class="scw"><canvas id="sc"></canvas></div>
+<footer><button id="pl">Play</button><input type="range" id="sl" min="0" max="1000" value="0"><span id="tm"></span>
+<label>Speed <select id="sp"><option>0.5</option><option selected>1</option><option>2</option><option>4</option></select></label>
+<span class="cap">1x plays 1 s of simulated time per second. Replay of simulation output, not live monitoring.</span></footer>
 <script>
 const D=/*__DATA__*/null;
 const $=i=>document.getElementById(i),f2=(v,d=2)=>v==null?"-":v.toFixed(d);
+const K={ok:"#2f7d4f",wn:"#b7791f",er:"#b3261e",mu:"#6a7077",ln:"#d6d2c8",ac:"#1f3a5f",tx:"#1c232b"};
 const NM={srv:"Server room",mot:"Conveyor motor",hvac:"HVAC compressor"};
-const ACT={srv:"transferred to UPS",mot:"drive TRIPPED",hvac:"compressor LOCKED OUT"};
-const LAB={uv:"UNDER-VOLTAGE (COMP1_OUT high)",sag:"low-voltage band (only LED1 lit)",hv:"high-voltage band (LED3 lit)",ov:"OVER-VOLTAGE (COMP4_OUT low = LED4)",
- fl:"LOW FREQUENCY (FREQ_LO low)",fh:"HIGH FREQUENCY (FREQ_HI low)",ls:"frequency channel signal lost (FREQ_V implausible)"};
-const REC=1.0,Q=5,INH=0.9,FLOST=44;   // restore delay s, qualifier bins (5x20ms), start-up inhibit s, plausibility floor Hz
+const ACT={srv:"transferred to UPS",mot:"drive tripped",hvac:"compressor locked out"};
+const LAB={uv:"Under-voltage (COMP1_OUT high)",sag:"Low voltage band (LED1 only)",hv:"High voltage band (LED3 lit)",ov:"Over-voltage (COMP4_OUT low)",
+ fl:"Low frequency (FREQ_LO low)",fh:"High frequency (FREQ_HI low)",ls:"Frequency signal lost (FREQ_V implausible)"};
+const REC=1.0,Q=5,INH=0.9,FLOST=44;   // restore delay s, qualifier bins (5 x 20 ms), start-up inhibit s, plausibility floor Hz
 let S,P,idx=0,playing=false,tCur=0,prev=0,aud=null,rv=0,a1=0,a2=0;
 const deb=(a,q)=>{let c=0,o=false;return a.map(x=>{c=x===o?0:c+1;if(c>=q){o=x;c=0}return o})};
 
@@ -73,7 +89,7 @@ function analyse(s){
  const p={},sh={srv:false,mot:false,hvac:false},tm={srv:0,mot:0,hvac:0},ex={srv:[0,0],mot:[0,0],hvac:[0,0]};let bat=100;
  for(let i=0;i<n;i++){
   const C={};for(const k in c)C[k]=c[k][i];
-  for(const k in C)if(C[k]!==!!p[k]){ev.push({i,c:C[k]?(/^(uv|ov|fl|fh)$/.test(k)?"er":"wn"):"ok",m:(C[k]?"AQSENSE flags ":"cleared: ")+LAB[k]});p[k]=C[k]}
+  for(const k in C)if(C[k]!==!!p[k]){ev.push({i,c:C[k]?(/^(uv|ov|fl|fh)$/.test(k)?"er":"wn"):"ok",m:LAB[k]+(C[k]?" asserted":" cleared")});p[k]=C[k]}
   const bad={srv:C.uv||C.ov,mot:C.uv||C.ov||C.fl||C.fh,hvac:C.uv||C.ov};
   const tv=s.vr[i]<180||s.vr[i]>260,tf=s.fa[i]<49||s.fa[i]>51,tr={srv:tv,mot:tv||tf,hvac:tv};
   for(const a in bad){
@@ -84,92 +100,95 @@ function analyse(s){
   }
   bat=sh.srv?Math.max(0,bat-3*dt):Math.min(100,bat+dt);
   const lv=C.ov?0:C.uv?.4:C.sag?.7:C.hv?.85:1;
-  const stt=s.t[i]<INH?"INITIALISING":(C.uv||C.ov||C.fl||C.fh)?"ALARM":(C.sag||C.hv||C.ls)?"WARNING":"NORMAL";
+  const stt=s.t[i]<INH?"Initialising":(C.uv||C.ov||C.fl||C.fh)?"Alarm":(C.sag||C.hv||C.ls)?"Warning":"Normal";
   st.push({srv:sh.srv,mot:sh.mot,hvac:sh.hvac,bat,lv,der:(!sh.mot&&C.sag)?.7:1,stt,tr:{...tr},ex:{srv:[...ex.srv],mot:[...ex.mot],hvac:[...ex.hvac]},C});
  }
  (s.ovev||[]).forEach(e=>ev.push({i:Math.min(n-1,Math.round(e.t1/dt)),c:e.cap?"wn":"er",
-  m:(e.cap?`Fault memory captured SH_OUT = ${f2(e.sh)} V (~${f2(e.shm,0)} V): the threshold level, not the peak.`
-   :`Fault memory did NOT capture: SH_OUT stayed at ${f2(e.sh)} V. Its switch control (COMP4_INV) only reached ${f2(e.ctl)} V; the analog gate needs about 5 V.`)
-   +` Software-logged peak from VSENSE: ${f2(e.pk)} V (~${f2(e.pkm,0)} V)`}));
+  m:(e.cap?`Fault memory captured SH_OUT ${f2(e.sh)} V (about ${f2(e.shm,0)} V). This is the threshold level, not the peak.`
+   :`Fault memory did not capture. SH_OUT stayed at ${f2(e.sh)} V. Control line COMP4_INV reached ${f2(e.ctl)} V and the analog gate needs about 5 V.`)
+   +` Peak logged from VSENSE: ${f2(e.pk)} V (about ${f2(e.pkm,0)} V).`}));
  ev.sort((a,b)=>a.i-b.i);return{ev,st};
 }
 
-function tile(id,x,y,title,body){return`<g transform="translate(${x},${y})"><rect width="250" height="150" rx="8" fill="#0d1117" stroke="#30363d"/>
-<text x="10" y="18" fill="#8b949e" font-size="11">${title}</text>${body}<text id="${id}s" x="10" y="142" font-size="12" font-weight="700" fill="#3fb950">RUNNING</text></g>`}
-const blades=c=>[0,60,120].map(r=>`<line x1="-30" x2="30" stroke="${c}" stroke-width="5" stroke-linecap="round" transform="rotate(${r})"/>`).join("");
+const T=(id,x,y,title,body)=>`<g transform="translate(${x},${y})"><rect width="250" height="150" fill="#fbfaf7" stroke="${K.ln}"/>
+<text x="12" y="20" fill="${K.mu}" font-size="11">${title}</text>${body}<rect id="${id}m" x="12" y="130" width="9" height="9" fill="${K.ok}"/>
+<text id="${id}s" x="28" y="139" font-size="12" font-weight="600" fill="${K.ok}">Running</text></g>`;
+const bl=c=>[0,60,120].map(r=>`<line x1="-30" x2="30" stroke="${c}" stroke-width="4" stroke-linecap="round" transform="rotate(${r})"/>`).join("");
 function initFac(){
- $("fac").innerHTML=`<rect id="feed" x="5" y="4" width="510" height="10" rx="5" fill="#3fb950"/><text id="feedt" x="260" y="28" fill="#8b949e" font-size="10" text-anchor="middle"></text>`+
- tile("srv",5,34,"SERVER ROOM + UPS",[0,1,2].map(j=>`<rect x="20" y="${34+j*28}" width="120" height="22" fill="#21262d"/><circle class="sl" cx="34" cy="${45+j*28}" r="4" fill="#3fb950"/>`).join("")+
-  `<rect x="155" y="36" width="80" height="24" fill="none" stroke="#8b949e"/><rect id="bat" x="157" y="38" height="20" width="76" fill="#3fb950"/><text x="160" y="76" fill="#8b949e" font-size="10">UPS battery</text>`)+
- tile("mot",265,34,"CONVEYOR MOTOR (4-pole, 1500 rpm @ 50 Hz)",`<g transform="translate(125,78)"><circle r="36" fill="none" stroke="#30363d" stroke-width="3"/><g id="rot">${blades("#58a6ff")}</g></g><text id="rpm" x="170" y="82" fill="#e6edf3" font-size="16"></text>`)+
- tile("hvac",5,194,"HVAC COMPRESSOR",`<g transform="translate(125,78)"><rect x="-60" y="-40" width="120" height="80" rx="6" fill="#161b22" stroke="#30363d"/><g id="rot2" transform="scale(.8)">${blades("#3fb950")}</g></g>`)+
- tile("lit",265,194,"LIGHTING",[0,1,2,3,4].map(j=>`<circle class="bu" cx="${35+j*45}" cy="70" r="16" fill="#f2cc60"/>`).join("")+`<text id="lvt" x="10" y="108" fill="#8b949e" font-size="11"></text>`);
+ $("fac").innerHTML=`<rect id="feed" x="0" y="4" width="520" height="3" fill="${K.ok}"/><text id="feedt" x="0" y="26" font-size="12" font-weight="600" fill="${K.tx}"></text>`+
+ T("srv",0,40,"Server room, UPS",[0,1,2].map(j=>`<rect x="14" y="${36+j*28}" width="120" height="22" fill="#efede6"/><circle class="sl" cx="28" cy="${47+j*28}" r="3.5" fill="${K.ok}"/>`).join("")+
+  `<rect x="154" y="38" width="80" height="24" fill="none" stroke="${K.mu}"/><rect id="bat" x="156" y="40" height="20" width="76" fill="${K.ok}"/><text x="154" y="78" font-size="11" fill="${K.mu}">UPS battery</text>`)+
+ T("mot",270,40,"Conveyor motor, 1500 rpm at 50 Hz",`<g transform="translate(80,80)"><circle r="36" fill="none" stroke="${K.ln}" stroke-width="2"/><g id="rot">${bl(K.ac)}</g></g><text id="rpm" class="m" x="140" y="82" font-size="20">0</text><text x="140" y="98" font-size="11" fill="${K.mu}">rpm</text>`)+
+ T("hvac",0,200,"HVAC compressor",`<g transform="translate(125,78)"><rect x="-60" y="-40" width="120" height="80" fill="none" stroke="${K.ln}"/><g id="rot2" transform="scale(.8)">${bl(K.ac)}</g></g>`)+
+ T("lit",270,200,"Lighting",[0,1,2,3,4].map(j=>`<circle class="bu" cx="${38+j*44}" cy="72" r="15" fill="#d9a441"/>`).join("")+`<text id="lvt" class="m" x="12" y="108" font-size="11" fill="${K.mu}"></text>`);
 }
-const setS=(id,t,c)=>{const e=$(id+"s");e.textContent=t;e.setAttribute("fill",c)};
+const setS=(id,t,c)=>{$(id+"s").textContent=t;$(id+"s").setAttribute("fill",c);$(id+"m").setAttribute("fill",c)};
 
 function render(){
- const i=idx,s=S,a=P.st[i],act=$("act").checked,C=a.C;
+ const i=idx,s=S,a=P.st[i],act=$("act").checked,up=s.t[i]<INH;
  for(let j=1;j<=4;j++)$("dl"+j).style.opacity=.12+.88*s["l"+j][i];
- $("dfl").style.opacity=.12+.88*s.fl[i];$("dfk").style.opacity=.12+.88*s.fk[i];$("dfh").style.opacity=.12+.88*s.fh[i];$("dbz").style.opacity=s.bz[i]?1:.12;
+ ["fl","fk","fh"].forEach(k=>$("d"+k).style.opacity=.12+.88*s[k][i]);
+ $("dbz").style.opacity=s.bz[i]?1:.12;
  const lvl=[1,2,3,4].filter(j=>s["l"+j][i]>.5).length;
- $("vb").textContent=s.t[i]<INH?"POWER-UP":["UNDER-VOLTAGE","LOW","NORMAL","HIGH","OVER-VOLTAGE"][lvl];
- $("vb").style.color=s.t[i]<INH?"#8b949e":(lvl==0||lvl==4)?"#f85149":(lvl==2)?"#3fb950":"#d29922";
- $("fb").textContent=s.t[i]<INH?"POWER-UP":s.fe[i]<FLOST?"SIGNAL LOST?":s.fl[i]>.5?"LOW FREQ":s.fh[i]>.5?"HIGH FREQ":"FREQ OK";
- $("kv").innerHTML=`<span>VSENSE</span><span>${f2(s.vs[i],3)} V</span><span>mains est. (VSENSE)</span><span>${f2(s.me[i],0)} V</span><span>applied (LTspice)</span><span>${f2(s.vr[i],0)} V</span>
- <span>FREQ_V</span><span>${f2(s.fv[i],3)} V</span><span>freq est. (FREQ_V)</span><span>${f2(s.fe[i])} Hz</span><span>applied (LTspice)</span><span>${f2(s.fa[i])} Hz</span>
- <span>SH_OUT (memory)</span><span>${f2(s.sh[i],3)} V</span><span>OR_OUT (buzzer gate)</span><span>${f2(s.orv[i],2)} V</span>`;
- const stc={NORMAL:"#3fb950",WARNING:"#d29922",ALARM:"#f85149",INITIALISING:"#8b949e"}[a.stt];
- $("feed").setAttribute("fill",stc);$("feedt").textContent=`GRID FEED - supervisor state: ${a.stt}`;
- const exp=k=>!act&&a.tr[k];
- const S1=(id,shed,txt,col)=>setS(id,act&&shed?txt:exp(id)?"EXPOSED - no action taken":"RUNNING",act&&shed?col:exp(id)?"#f85149":"#3fb950");
- S1("srv",a.srv,"ON UPS - isolated from mains","#d29922");S1("mot",a.mot,"TRIPPED","#f85149");S1("hvac",a.hvac,"LOCKED OUT","#f85149");
- document.querySelectorAll(".sl").forEach((e,j)=>e.setAttribute("fill",(a.srv&&act)?"#d29922":(Math.floor(tCur*4)+j)%3?"#3fb950":"#21262d"));
+ $("vb").textContent=up?"Power-up":["Under-voltage","Low","Normal","High","Over-voltage"][lvl];
+ $("vb").style.color=up?K.mu:(lvl==0||lvl==4)?K.er:lvl==2?K.ok:K.wn;
+ const fb=up?"Power-up":s.fe[i]<FLOST?"Signal lost":s.fl[i]>.5?"Low":s.fh[i]>.5?"High":"In window";
+ $("fb").textContent="Frequency: "+fb;$("fb").style.color=up?K.mu:fb=="In window"?K.ok:K.wn;
+ const kv=[["VSENSE",f2(s.vs[i],3)+" V"],["Mains est.",f2(s.me[i],0)+" V"],["Mains applied",f2(s.vr[i],0)+" V"],["FREQ_V",f2(s.fv[i],3)+" V"],
+  ["Freq est.",f2(s.fe[i])+" Hz"],["Freq applied",f2(s.fa[i])+" Hz"],["SH_OUT",f2(s.sh[i],3)+" V"],["OR_OUT",f2(s.orv[i],2)+" V"]];
+ $("kv").innerHTML=kv.map(r=>`<span>${r[0]}</span><span>${r[1]}</span>`).join("");
+ const stc={Normal:K.ok,Warning:K.wn,Alarm:K.er,Initialising:K.mu}[a.stt];
+ $("feed").setAttribute("fill",stc);$("feedt").textContent="Supervisor: "+a.stt;
+ const expo=k=>!act&&a.tr[k];
+ const S1=(id,shed,txt,col)=>(act&&shed)?setS(id,txt,col):expo(id)?setS(id,"Exposed, no action",K.er):setS(id,"Running",K.ok);
+ S1("srv",a.srv,"On UPS",K.wn);S1("mot",a.mot,"Tripped",K.er);S1("hvac",a.hvac,"Locked out",K.er);
+ document.querySelectorAll(".sl").forEach((e,j)=>e.setAttribute("fill",(a.srv&&act)?K.wn:(Math.floor(tCur*4)+j)%3?K.ok:K.ln));
  $("bat").setAttribute("width",76*a.bat/100);
- const lv=act?a.lv:1;document.querySelectorAll(".bu").forEach(e=>e.setAttribute("opacity",.1+.9*lv));
- $("lvt").textContent="output "+Math.round(lv*100)+" %";setS("lit",lv<1?"DIMMED / OFF":"ON",lv<1?"#d29922":"#3fb950");
- $("rpm").textContent=Math.round(rv)+" rpm";
- $("ex").innerHTML="<table><tr><th></th><th>ignore AQSENSE</th><th>with supervisor</th></tr>"+["srv","mot","hvac"].map(k=>`<tr><td>${NM[k]}</td><td>${f2(a.ex[k][0],1)}</td><td>${f2(a.ex[k][1],1)}</td></tr>`).join("")+"</table>";
+ const lv=act?a.lv:1;document.querySelectorAll(".bu").forEach(e=>e.setAttribute("opacity",.12+.88*lv));
+ $("lvt").textContent="Output "+Math.round(lv*100)+" %";setS("lit",lv==0?"Off":lv<1?"Dimmed":"On",lv==0?K.er:lv<1?K.wn:K.ok);
+ $("rpm").textContent=Math.round(rv);
+ $("ex").innerHTML="<table><tr><th></th><th>Unprotected</th><th>Supervised</th></tr>"+["srv","mot","hvac"].map(k=>`<tr><td>${NM[k]}</td><td>${f2(a.ex[k][0],1)}</td><td>${f2(a.ex[k][1],1)}</td></tr>`).join("")+"</table>";
  const L=$("log"),w=P.ev.filter(e=>e.i<=i);if(L.dataset.n!=w.length){L.dataset.n=w.length;
-  L.innerHTML=w.map(e=>`<div class="${e.c}">[${f2(e.i*S.bin,2)} s] ${e.m}</div>`).join("");L.scrollTop=1e9}
- const m=S.marks.find(m=>tCur>=m[0]&&tCur<m[1]);$("mk").textContent="Applied to LTspice mains source: "+(m?m[2]:"");
+  L.innerHTML=w.map(e=>`<div class="e ${e.c}"><b>${f2(e.i*S.bin,2)}</b><span>${e.m}</span></div>`).join("");L.scrollTop=1e9}
+ const m=S.marks.find(m=>tCur>=m[0]&&tCur<m[1]);$("mk").textContent="Stimulus applied in LTspice: "+(m?m[2]:"");
  $("tm").textContent=f2(tCur,2)+" / "+f2(S.end,1)+" s";$("sl").value=1000*tCur/S.end;
  if(aud)aud.g.gain.setTargetAtTime(s.bz[i]&&$("snd").checked&&playing&&s.t[i]>=INH?.04:0,aud.c.currentTime,.01);
  scope();
 }
 
 function scope(){
- const c=$("sc"),r=devicePixelRatio||1,W=c.width=c.clientWidth*r,H=c.height=c.clientHeight*r,x=c.getContext("2d");x.scale(r,r);const w=W/r,h=H/r,n=S.t.length;
- const X=i=>i/(n-1)*w;x.font="10px system-ui";
+ const c=$("sc"),r=devicePixelRatio||1,W=c.width=c.clientWidth*r,H=c.height=c.clientHeight*r,x=c.getContext("2d");x.scale(r,r);const w=W/r,h=H/r,n=S.t.length,L=60;
+ const X=i=>L+i/(n-1)*(w-L);x.font="10px Consolas,monospace";
  const strip=(y0,y1,lo,hi,arr,col,lines,band)=>{const Y=v=>y1-(Math.min(hi,Math.max(lo,v))-lo)/(hi-lo)*(y1-y0);
-  if(band){x.fillStyle="rgba(63,185,80,.15)";x.fillRect(0,Y(band[1]),w,Y(band[0])-Y(band[1]))}
-  (lines||[]).forEach(l=>{x.strokeStyle="#6e7681";x.setLineDash([3,3]);x.beginPath();x.moveTo(0,Y(l[0]));x.lineTo(w,Y(l[0]));x.stroke();x.setLineDash([]);x.fillStyle="#8b949e";x.fillText(l[1],4,Y(l[0])-2)});
+  if(band){x.fillStyle="rgba(47,125,79,.13)";x.fillRect(L,Y(band[1]),w-L,Y(band[0])-Y(band[1]))}
+  (lines||[]).forEach(l=>{x.strokeStyle="#b9b4a8";x.setLineDash([3,3]);x.lineWidth=1;x.beginPath();x.moveTo(L,Y(l[0]));x.lineTo(w,Y(l[0]));x.stroke();x.setLineDash([]);x.fillStyle=K.mu;x.fillText(l[1],4,Y(l[0])+3)});
   arr.forEach((a,k)=>{x.strokeStyle=col[k];x.lineWidth=1.5;x.beginPath();a.forEach((v,i)=>i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v)));x.stroke()})};
- strip(8,100,3,6.2,[S.vs,S.sh],["#58a6ff","#d29922"],[[3.605,"180 V ref"],[4.062,"200 V"],[4.973,"240 V"],[5.43,"260 V"]]);
- x.fillStyle="#58a6ff";x.fillText("VSENSE (blue)   SH_OUT fault memory (orange)",w-270,18);
- strip(112,172,2.0,2.6,[S.fv],["#3fb950"],[],[2.2823,2.3743]);x.fillStyle="#3fb950";x.fillText("FREQ_V (green) with 49-51 Hz window",w-230,124);
- const rows=[["UV",e=>e.C.uv,"#f85149"],["OV",e=>e.C.ov,"#f85149"],["f LOW",e=>e.C.fl,"#d29922"],["f HIGH",e=>e.C.fh,"#d29922"],["BUZZER",(e,i)=>S.bz[i],"#f85149"]];
- rows.forEach((r,j)=>{const y=182+j*12;x.fillStyle="#8b949e";x.fillText(r[0],4,y+8);P.st.forEach((e,i)=>{if(r[1](e,i)){x.fillStyle=r[2];x.fillRect(46+(i/n)*(w-46),y,Math.max(1,(w-46)/n+.5),9)}})});
- x.strokeStyle="#e6edf3";x.lineWidth=1.5;const px=tCur/S.end*(w-0);x.beginPath();x.moveTo(px,0);x.lineTo(px,h);x.stroke();
+ strip(8,100,3,6.2,[S.vs,S.sh],[K.ac,K.wn],[[3.605,"180 V"],[4.062,"200 V"],[4.973,"240 V"],[5.43,"260 V"]]);
+ x.fillStyle=K.ac;x.fillText("VSENSE",w-300,18);x.fillStyle=K.wn;x.fillText("SH_OUT fault memory",w-250,18);
+ strip(112,172,2.0,2.6,[S.fv],[K.ok],[],[2.2823,2.3743]);x.fillStyle=K.ok;x.fillText("FREQ_V, 49 to 51 Hz window",w-200,124);
+ const rows=[["UV",e=>e.C.uv,K.er],["OV",e=>e.C.ov,K.er],["Low f",e=>e.C.fl,K.wn],["High f",e=>e.C.fh,K.wn],["Buzzer",(e,i)=>S.bz[i],K.er]];
+ rows.forEach((r,j)=>{const y=182+j*12;x.fillStyle=K.mu;x.fillText(r[0],4,y+8);P.st.forEach((e,i)=>{if(r[1](e,i)){x.fillStyle=r[2];x.fillRect(X(i),y,Math.max(1,(w-L)/n+.5),9)}})});
+ x.strokeStyle=K.tx;x.lineWidth=1.5;const px=L+tCur/S.end*(w-L);x.beginPath();x.moveTo(px,0);x.lineTo(px,h);x.stroke();
 }
 
 function load(k){S=D[k];P=analyse(S);idx=0;tCur=0;rv=0;$("log").dataset.n=-1;
  const sy=S.src==="synthetic";$("src").className=sy?"syn":S.mod?"mod":"";
- $("src").textContent=sy?"SYNTHETIC TEST DATA - NOT FROM LTSPICE":`LTspice data: ${S.file} (extracted ${S.created})`+(S.mod?" | CIRCUIT MODIFIED: "+S.mod:"");setPlay(false)}
-function setPlay(v){playing=v;$("pl").innerHTML=v?"&#10074;&#10074; Pause":"&#9654; Play"}
+ $("src").textContent=sy?"SYNTHETIC TEST DATA. NOT FROM LTSPICE.":(S.mod?"Modified circuit: "+S.mod+" | ":"")+`Data: ${S.file}, extracted ${S.created}`;setPlay(false)}
+function setPlay(v){playing=v;$("pl").textContent=v?"Pause":"Play"}
 function audio(){if(aud)return;try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.type="square";o.frequency.value=980;g.gain.value=0;o.connect(g).connect(c.destination);o.start();aud={c,g}}catch(e){}}
 function tick(ts){const d=Math.min(.1,(ts-prev)/1000);prev=ts;
  if(playing){tCur+=d*parseFloat($("sp").value);if(tCur>=S.end){tCur=S.end-.001;setPlay(false)}}
- idx=Math.min(S.t.length-1,Math.max(0,Math.floor(tCur/S.bin)));const a=P.st[idx];
- const fq=S.fa[idx]==null?S.fe[idx]:S.fa[idx];const tgt=($("act").checked&&a.mot)?0:1500*fq/50*($("act").checked?a.der:1);rv+=(tgt-rv)*Math.min(1,d*3);
- const sp=playing?1:0;a1+=rv/1500*d*180*sp;a2+=(($("act").checked&&a.hvac)?0:1)*d*300*sp;
+ idx=Math.min(S.t.length-1,Math.max(0,Math.floor(tCur/S.bin)));const a=P.st[idx],act=$("act").checked;
+ const fq=S.fa[idx]==null?S.fe[idx]:S.fa[idx],tgt=(act&&a.mot)?0:1500*fq/50*(act?a.der:1);rv+=(tgt-rv)*Math.min(1,d*3);
+ const sp=playing?1:0;a1+=rv/1500*d*180*sp;a2+=((act&&a.hvac)?0:1)*d*300*sp;
  $("rot").setAttribute("transform","rotate("+a1+")");$("rot2").setAttribute("transform","scale(.8) rotate("+a2+")");
  render();requestAnimationFrame(tick)}
 
-D.forEach((s,k)=>{const o=document.createElement("option");o.value=k;o.textContent=s.title;$("sel").appendChild(o)});
+D.forEach((s,k)=>{const o=document.createElement("option");o.value=k;o.textContent=(k+1)+". "+s.title;$("sel").appendChild(o)});
 initFac();$("sel").onchange=()=>load(+$("sel").value);
 $("pl").onclick=()=>{audio();if(aud&&aud.c.state==="suspended")aud.c.resume();if(tCur>=S.end-.01)tCur=0;setPlay(!playing)};
 $("sl").oninput=()=>{tCur=$("sl").value/1000*S.end};
-$("sc").onclick=e=>{tCur=e.offsetX/$("sc").clientWidth*S.end};
-document.onkeydown=e=>{if(e.code==="Space"){e.preventDefault();$("pl").click()}};
+$("sc").onclick=e=>{const w=$("sc").clientWidth;tCur=Math.min(S.end-.001,Math.max(0,(e.offsetX-60)/(w-60)*S.end))};
+document.onkeydown=e=>{if(e.code==="Space"&&e.target.tagName!=="SELECT"&&e.target.tagName!=="INPUT"){e.preventDefault();$("pl").click()}};
 load(0);requestAnimationFrame(t=>{prev=t;tick(t)});
 </script></body></html>
